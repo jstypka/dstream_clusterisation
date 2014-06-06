@@ -1,0 +1,6 @@
+[submodule "mapreduce"]
+	path = mapreduce
+	url = https://github.com/jstypka/offline_dstream.git
+[submodule "clusterisation"]
+	path = clusterisation
+	url = https://github.com/jstypka/clusterisation.git
