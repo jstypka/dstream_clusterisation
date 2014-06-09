@@ -5,7 +5,7 @@ Aplikacja pozwala na klasteryzację danych zgodnie z algorytmem Dstream w wersji
 
 Algorytm jest zaimplementowany w paradygmacie MapReduce i wykonuje się przy wykorzystaniu narzędzia [Apache Hadoop](http://hadoop.apache.org/), które jest konieczne do jego uruchomienia. W celu zwiększenia wydajności zaleca się uruchamianie go na rozproszonej architekturze, która umożliwia przetwarzanie równoległe.
 
-# Zależności
+## Zależności
 
 Wymagane oprogramowanie:
 * [Java](http://www.java.com/pl/)
@@ -13,7 +13,7 @@ Wymagane oprogramowanie:
 
 Pozostałe dependencje zawarte są w plikach `pom.xml` i powinne zostać pobrane automatycznie podczas budowania projektu
 
-# Budowanie i uruchamianie projektu
+## Budowanie i uruchamianie projektu
 
 Aby zbudować i uruchomić program należy wykonać:
 
@@ -25,4 +25,18 @@ Aby zbudować i uruchomić program należy wykonać:
 Projekt zostanie ściągnięty i zbudowany przez narzędzie Maven, a wszystkie dependencje powinne zostać ściągnięte z internetu.
 W razie problemów ze skryptem `compile.sh` można również wywołać polecenie `mvn install` w folderach `clusterisation` oraz `mapreduce`, co powinno mieć podobny efekt.
 
-# Opis algorytmu
+## Opis algorytmu
+
+Algorytm zaimplementowany w programie opiera się na pomyśle Yixin Chen oraz Li Tu, którzy przedstawili ten algorytm w artykule pt. _Density-Based Clustering for Real-Time Stream Data_. Całość artykułu można znaleźć pod adresem: [http://www.cse.wustl.edu/~ychen/public/sigproc-sp.pdf](http://www.cse.wustl.edu/~ychen/public/sigproc-sp.pdf).
+
+
+
+## Implementacja
+
+Sam program podzielony jest na dwie niezależne części: `mapreduce` oraz `clusterisation`, które są wykonywane sekwencyjnie. Część pierwsza odpowiada za wczytanie danych wejściowych, ich znormalizowanie i wreszcie scalenie - tworząc listę, której elementami jest para (Coordinates, Density) = (Współrzędne gridu, Gęstość gridu). Zapisuje ona wyniki w folderze `pipe`, z którego pobiera dane drugi moduł. Dokładna implementacja i opis tej części algorytmu znajduje się w sekcji `MapReduce`.
+
+Drugą częścią aplikacji jest moduł `clusterisation`, który operuje na danych wyjściowych części poprzedniej. Odpowiada on za przetworzenie całej znanej części przestrzeni rozwiązań i stworzenie listy klastrów, które odpowiadają grupom gridów o największej gęstości. Dane te są zapisywane do folderu `output`. Dokładny opis tej części algorytmu znajduje się w sekcji `Clusterisation`.
+
+## MapReduce
+
+## Clusterisation
