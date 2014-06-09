@@ -48,3 +48,30 @@ Drugą częścią aplikacji jest moduł `clusterisation`, który operuje na dany
 ## MapReduce
 
 ## Clusterisation
+
+Moduł clusterisation odpowiada za podzielenie danych przetworzonych przez `mapreduce` na klastry. W jego działaniu (poza wczytaniem i wypisywanie danych) wyróżniamy trzy etapy:
+
+* createClusters()
+* attachTransitionalGrids()
+* mergeClusters()
+
+ 
+### createClusters()
+
+Po wczytaniu danych wejściowych każdemu dense gridowi został przyporządkowany osobny klaster. Funkcja `createClusters()` ma na celu stworzenie z sąsiadujących ze sobą gridów większe grupy i przyporządkowanie im tych samych klastrów. Do wykonania tego zadania wykorzystywany jest algorytm przeszukiwania grafu DFS, który operuje tylko na dense gridach ignorując zupełnie transitional gridy. Przy okazji tego przeglądania całej gridlisty tworzona jest lista wszystkich transitional gridów sąsiadujących z dense gridami.
+
+### attachTransitionalGrids()
+
+Obecna funkcja iteruje właśnie po tej świeżo stworzonej liście próbując "dokleić" transitional gridy do sąsiadujących z nimi klastrów. Podczas tej operacji w razie konfliktu grid jest doczepiany do największego klastra i cały czas pilnowany jest warunek, żeby żaden transitional grid nie był otoczony dense gridami z tego samego klastra (sprzeczne z definicją klastra). Operacja ta zostaje przerwana, gdy nie można dokonać już żadnej zmiany.
+
+### mergeClusters()
+
+Ostatnią operacją jest scalanie postałych klastrów. Jako, że wszystkie dense gridy są już w jednym klastrze co inne sąsiadujące gridy o tym stopniu gęstości, więc funkcja przegląda tylko transitional gridy. Zachowując dwie zasady opisane wyżej (przy konflikcie grid doczepiany jest do większego z klastrów oraz żaden transitional grid nie może być otoczony przez dense gridy należące do tego samego klastra), dla każdego przeglądanego grida próbujemy scalić sąsiadujące z nim klastry. Funkcja kończy się, gdy nie da się dokonać już żadnej operacji.
+
+Po ostatnim z powyższych kroków, gridlista jest sklasteryzowana i może zostać zwrócona jako wynik algorytmu. Dane zostają zapisane do pliku o ścieżce `output/clusters`.
+
+
+
+
+
+
