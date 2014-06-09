@@ -13,7 +13,7 @@ Wymagane oprogramowanie:
 
 Pozostałe dependencje zawarte są w plikach `pom.xml` i powinne zostać pobrane automatycznie podczas budowania projektu
 
-## Budowanie i uruchamianie projektu
+## Budowanie projektu
 
 Aby zbudować i uruchomić program należy wykonać:
 
@@ -24,6 +24,10 @@ Aby zbudować i uruchomić program należy wykonać:
     
 Projekt zostanie ściągnięty i zbudowany przez narzędzie Maven, a wszystkie dependencje powinne zostać ściągnięte z internetu.
 W razie problemów ze skryptem `compile.sh` można również wywołać polecenie `mvn install` w folderach `clusterisation` oraz `mapreduce`, co powinno mieć podobny efekt.
+
+## Uruchamianie projektu
+
+TODO
 
 ## Opis algorytmu
 
