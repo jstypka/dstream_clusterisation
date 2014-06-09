@@ -27,11 +27,15 @@ W razie problemów ze skryptem `compile.sh` można również wywołać polecenie
 
 ## Uruchamianie projektu
 
-TODO
+Aby uruchomić proces klasteryzacji, należy umieścić dane wejściowe w odpowiednim formacie w folderze `input` i wykonać polecenie:
+
+    ~$ ./run.sh
+
+Dane wyjściowe powinne znaleźć się w folderze `output`. Oba foldery powinne być stworzone przed uruchomieniem aplikacji, inaczej pojawi się błąd.
 
 ## Opis algorytmu
 
-Algorytm zaimplementowany w programie opiera się na pomyśle Yixin Chen oraz Li Tu, którzy przedstawili ten algorytm w artykule pt. _Density-Based Clustering for Real-Time Stream Data_. Całość artykułu można znaleźć pod adresem: [http://www.cse.wustl.edu/~ychen/public/sigproc-sp.pdf](http://www.cse.wustl.edu/~ychen/public/sigproc-sp.pdf).
+Algorytm zaimplementowany w programie opiera się na pomyśle prof. Yixin Chen oraz prof. Li Tu, którzy przedstawili ten algorytm w artykule pt. _Density-Based Clustering for Real-Time Stream Data_. Całość artykułu można znaleźć pod adresem: [http://www.cse.wustl.edu/~ychen/public/sigproc-sp.pdf](http://www.cse.wustl.edu/~ychen/public/sigproc-sp.pdf).
 
 
 
