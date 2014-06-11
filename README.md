@@ -47,6 +47,57 @@ Drugą częścią aplikacji jest moduł `clusterisation`, który operuje na dany
 
 ## MapReduce
 
+Główną składową aplikacji jest zadanie (job) MapReduce frameworku Apache Hadoop, którego dane wynikowe są używane przez moduł klasteryzacji. Przeznaczone jest ono do wykonywania na instancji Hadoopa w wersji 2.0, wykorzystując tzw. "nowe API" MapReduce.
+
+Zadanie składa się z czterech głównych elementów. Są to: mapper, comparator (group comparator), partitioner oraz reducer. Ich implementacja została opisana poniżej.
+
+### Dane wejściowe
+
+Dane wejściowe dla zadania MapReduce powinien stanowić plik, który w każdej linii zawiera znacznik czasowy (timestamp) wyrażony liczbą całkowitą, a następnie `k` całkowitoliczbowych wartości reprezentujących współrzędne pojedynczego rekordu w `k`-wymiarowej przestrzeni. Wszystkie wspomniane wartości są rozdzielane znakiem spacji.
+
+Rekord to jednostkowy pomiar zarejestrowany w czasie określonym przez timestamp, który przynależąc do danego gridu wnosi wkład w obliczaną w zadaniu gęstość tego gridu.
+
+Tym samym, fragment danych wejściowych (tutaj dla dwuwymiarowej przestrzeni) mógłby wyglądać następująco:
+
+    1 150 140
+    2 450 460
+    3 510 350
+
+Przykładowo, w drugiej linii zapisany został pojedynczy rekord o znaczniku czasowym równym `2` oraz współrzędnych `(450, 460)`.
+
+Oprócz powyższego pliku, danymi wejściowymi są także, podawane w linii argumentów, liczba rekordów w pliku wejściowym oraz wymiar gridu (pojedyncza wartość stosowana dla wszystkich wymiarów). Właściwy dobór tego ostatniego ma kluczowy wpływ na proces klasteryzacji.
+
+### Mapper
+
+Mapper, zaimplementowany w klasie `OffDstreamMapper`, jest odpowiedzialny za przetworzenie pojedynczej linii pliku wejściowego zawierającej znacznik czasowy oraz współrzędne rekordu na parę `(klucz, wartość)`, gdzie klucz stanowi krotka `(współrzędne gridu, timestamp)` a wartość jest równa `timestamp`. Występująca tu redundantność danych (znacznik czasowy) wynika z konieczności zapewnienia warunku dostarczenia do reducera danych posortowanych zględem timestampu. Szczegóły zostały przedstawione w opisie reducera.
+
+Współrzędne gridu wchodzące w skład danych wyjściowych mappera są wyliczane w oparciu o wymiarowość przestrzeni rekordów (wnioskowaną na bazie wartości w przetwarzanej linii pliku wejściowego) oraz wymiary gridu podawane jako argument wywołania zadania. Z punktu widzenia dalszego przetwarzania stanowią one główne dane, zastępując szczegółowe współrzędne pojedynczego rekordu.
+
+### Comparators
+
+Zadanie `OffDstream` wykorzystuje dwa comparatory: `KeyComparator` oraz `GroupComparator`. Pierwszy z nich odpowiada za porównywanie krotek przekazywanych przez mappera w celu dostarczenia do reducera danych posortowanych względem współrzędnych gridu oraz, co jest tu kluczowe, względem znacznika czasowego w tej krotce. Dzięki temu dane wejściowe reducera są ułożone zgodnie z rosnącą wartością timestamp, co pozwala mu sekwencyjnie przetwarzać te dane, bez dodatkowego (i czasochłonnego) ich sortowania.
+
+Drugi z comparatorów, `GroupComparator`, odpowiada za grupowanie danych wyjściowych mappera, które są następnie przekazywane do reducera. Dane są grupowane względem współrzędnych gridu zawartych w przetwarzanej krotce.
+
+Oba opisane tu comparatory składają się na relizację mechanizmu *secondary sort*, który pozwala zachować ustaloną kolejność danych wejściowych reducerów, która domyślnie jest dowolna i może różnić się pomiędzy kolejnymi uruchomieniami zadania.
+
+### Partitioner
+
+Partitioner, zaimplementowany w klasie `OffDstreamPartitioner`, realizuje zadanie polegające na wyznaczeniu konkretnego reducera, do którego mają trafić dane przetworzone przez mapper oraz comparatory (w naszym wypadku krotka oraz znacznik czasowy). Procedura ta opiera się na obliczaniu funkcji haszującej.
+
+### Reducer
+
+Reducer (`OffDstreamReducer`) stanowi ostatni etap przetwarzania danych w obrębie zadania. W każdym wywołaniu metody `reduce` otrzymuje on krotkę `(współrzędne gridu, timestamp)` oraz kolekcję posortowanych znaczników czasowych - wszystkich, dla których został zarejestrowany rekord przyporządkowany do gridu o współrzędnych z krotki. Następnie w oparciu o wartości timestampów wyznaczana jest gęstość dla danego gridu według schematu przedstawionego w referencyjnej realizacji algorytmu D-Stream. Gęstość ta, zanim zostanie przekazana na wyjście zadania, jest jednokrotnie odświeżana dla znacznika czasowego równego liczbie rekordów w pliku wejściowym, który podawany jest jako argument uruchamianego zadania MapReduce.
+
+### Dane wyjściowe
+
+Na dane wyjściowe składają się tym samym wyniki, dla których pojedyncza linia określa współrzędne danego gridu oraz wyznaczoną dla niego gęstość. Obie te wartości są rozdzielone pojedynczym znakiem tabulacji. Przykładowe dane wyjściowe zostały przedstawione poniżej:
+
+    (0,0)   1.40960
+    (1,1)   2.15200
+    (1,2)   1.80000
+    (2,1)   1.00000
+
 ## Clusterisation
 
 Moduł clusterisation odpowiada za podzielenie danych przetworzonych przez `mapreduce` na klastry. W jego działaniu (poza wczytaniem i wypisywanie danych) wyróżniamy trzy etapy:
