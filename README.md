@@ -19,7 +19,7 @@ Aby zbudować i uruchomić program należy wykonać:
 
     ~$ git clone https://github.com/jstypka/dstream_clusterisation.git
     ~$ cd dsteam_clusterisation/
-    ~$ git submodule foreach pull origin master
+    ~$ git submodule update --init --recursive
     ~$ ./compile.sh
     
 Projekt zostanie ściągnięty i zbudowany przez narzędzie Maven, a wszystkie dependencje powinne zostać ściągnięte z internetu.
